@@ -1,0 +1,9 @@
+{
+  "name": "Chat Al-Maerifa - شات المعرفة",
+  "description": "منصة ذكاء اصطناعي هجينة متطورة لإنتاج المعرفة، الفيديوهات، والبرمجيات.",
+  "repository": "chat-almaerifa",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
