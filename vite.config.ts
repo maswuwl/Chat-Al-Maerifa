@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    // استخدام './' يضمن عمل المسارات بشكل صحيح عند النشر على الاستضافات المختلفة
-    base: './',
+    // ترك المسار فارغاً أو '/' هو الأفضل لمعظم منصات النشر مثل Vercel
+    base: '/',
     plugins: [react()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.API_KEY)
@@ -17,15 +17,13 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: false, // تعطيل الخرائط لتقليل حجم البناء
-      minify: 'esbuild', // تم التغيير من terser إلى esbuild لحل مشكلة الخطأ
-      chunkSizeWarningLimit: 2000,
+      assetsDir: 'assets',
+      sourcemap: false,
+      minify: 'esbuild',
       rollupOptions: {
         output: {
           manualChunks: {
-            // تجميع المكتبات الأساسية لتقليل عدد الطلبات
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-ai': ['@google/genai']
+            'vendor': ['react', 'react-dom', '@google/genai']
           }
         }
       }
