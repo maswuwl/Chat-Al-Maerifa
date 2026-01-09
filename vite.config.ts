@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    // Set base to './' for GitHub Pages compatibility
+    // استخدام './' يضمن عمل المسارات بشكل صحيح عند النشر على الاستضافات المختلفة
     base: './',
     plugins: [react()],
     define: {
@@ -17,14 +17,15 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true,
-      minify: 'terser',
-      chunkSizeWarningLimit: 1600,
+      sourcemap: false, // تعطيل الخرائط لتقليل حجم البناء
+      minify: 'esbuild', // تم التغيير من terser إلى esbuild لحل مشكلة الخطأ
+      chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom'],
-            genai: ['@google/genai']
+            // تجميع المكتبات الأساسية لتقليل عدد الطلبات
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-ai': ['@google/genai']
           }
         }
       }
