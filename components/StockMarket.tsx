@@ -9,20 +9,27 @@ interface StockMarketProps {
   onUpdateUser: (u: UserProfile) => void;
 }
 
+interface Transaction {
+  id: string;
+  type: 'buy' | 'sell';
+  amount: number;
+  price: number;
+  date: string;
+}
+
 const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) => {
   const t = translations[lang];
   const [price, setPrice] = useState(145.20);
   const [prevPrice, setPrevPrice] = useState(145.20);
   const [history, setHistory] = useState<number[]>([140, 142, 138, 145, 143, 148, 145, 142, 146, 145.20]);
   const [sharesOwned, setSharesOwned] = useState(0);
-  const [transactions, setTransactions] = useState<{ id: string; type: 'buy' | 'sell'; amount: number; price: number; date: string }[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [orderAmount, setOrderAmount] = useState<number>(1);
 
-  // Simulate Live Price Action
   useEffect(() => {
     const interval = setInterval(() => {
       setPrevPrice(price);
-      const change = (Math.random() - 0.48) * 2; // Slight upward bias
+      const change = (Math.random() - 0.48) * 2;
       const newPrice = Math.max(10, price + change);
       setPrice(newPrice);
       setHistory(prev => [...prev.slice(-29), newPrice]);
@@ -40,13 +47,15 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
     }
     onUpdateUser({ ...user, diamonds: user.diamonds - totalCost });
     setSharesOwned(prev => prev + orderAmount);
-    setTransactions(prev => [{
+    
+    const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       type: 'buy',
       amount: orderAmount,
       price: price,
       date: new Date().toLocaleTimeString()
-    }, ...prev].slice(0, 10));
+    };
+    setTransactions(prev => [newTx, ...prev].slice(0, 10));
   };
 
   const handleSell = () => {
@@ -57,16 +66,17 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
     const gain = orderAmount * price;
     onUpdateUser({ ...user, diamonds: user.diamonds + gain });
     setSharesOwned(prev => prev - orderAmount);
-    setTransactions(prev => [{
+    
+    const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       type: 'sell',
       amount: orderAmount,
       price: price,
       date: new Date().toLocaleTimeString()
-    }, ...prev].slice(0, 10));
+    };
+    setTransactions(prev => [newTx, ...prev].slice(0, 10));
   };
 
-  // SVG Chart Generation
   const chartPoints = useMemo(() => {
     const max = Math.max(...history) + 5;
     const min = Math.min(...history) - 5;
@@ -83,7 +93,6 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#05070a] overflow-hidden">
-      {/* Exchange Header */}
       <header className="p-8 border-b border-white/5 bg-[#0a0c10]/50 backdrop-blur-xl flex flex-wrap items-center justify-between gap-6">
         <div className="flex items-center gap-6">
            <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
@@ -119,7 +128,6 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Main Chart Area */}
         <main className="flex-1 flex flex-col p-8 overflow-y-auto custom-scroll">
            <div className="bg-[#0d1117] border border-white/5 rounded-[2.5rem] p-10 mb-8 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -145,15 +153,12 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
                     </defs>
                     <path d={`${pathD} V 300 H 0 Z`} fill="url(#chartGradient)" />
                     <path d={pathD} fill="none" stroke={marketTrend === 'up' ? '#10b981' : '#f43f5e'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-300" />
-                    
-                    {/* Pulsing end point */}
                     <circle cx={chartPoints[chartPoints.length - 1].x} cy={chartPoints[chartPoints.length - 1].y} r="5" fill={marketTrend === 'up' ? '#10b981' : '#f43f5e'} className="animate-pulse" />
                  </svg>
               </div>
            </div>
 
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Portfolio Card */}
               <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8">
                  <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">{t.exchange.portfolio}</h3>
                  <div className="grid grid-cols-2 gap-6">
@@ -180,7 +185,6 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
                  </div>
               </div>
 
-              {/* Transaction History */}
               <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 flex flex-col">
                  <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">{t.exchange.history}</h3>
                  <div className="flex-1 space-y-3">
@@ -210,7 +214,6 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
            </div>
         </main>
 
-        {/* Trade Panel */}
         <aside className="w-80 bg-[#0a0c10] border-l border-white/5 p-8 flex flex-col gap-8 shadow-2xl z-10">
            <div className="space-y-4">
               <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6">Execution Panel</h3>
@@ -254,30 +257,6 @@ const StockMarket: React.FC<StockMarketProps> = ({ lang, user, onUpdateUser }) =
                  <button onClick={handleSell} className="py-5 bg-rose-600 hover:bg-rose-500 text-white rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-rose-600/30 transition-all active:scale-95">
                     {t.exchange.sell}
                  </button>
-              </div>
-           </div>
-
-           <div className="mt-auto space-y-4">
-              <div className="flex items-center justify-between px-2">
-                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Order Book</span>
-                 <span className="text-[8px] text-emerald-500 animate-pulse">● LIVE</span>
-              </div>
-              <div className="space-y-1 font-mono text-[9px]">
-                 {[...Array(5)].map((_, i) => (
-                   <div key={i} className="flex justify-between items-center opacity-60">
-                      <span className="text-emerald-500">{(price + (i+1)*0.05).toFixed(2)}</span>
-                      <span className="text-slate-400">{(Math.random()*100).toFixed(1)}</span>
-                   </div>
-                 ))}
-                 <div className="py-2 border-y border-white/5 text-center text-white font-black text-xs">
-                    {price.toFixed(2)}
-                 </div>
-                 {[...Array(5)].map((_, i) => (
-                   <div key={i} className="flex justify-between items-center opacity-60">
-                      <span className="text-rose-500">{(price - (i+1)*0.05).toFixed(2)}</span>
-                      <span className="text-slate-400">{(Math.random()*100).toFixed(1)}</span>
-                   </div>
-                 ))}
               </div>
            </div>
         </aside>

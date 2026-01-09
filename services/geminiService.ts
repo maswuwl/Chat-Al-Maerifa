@@ -1,9 +1,9 @@
 
-import { GoogleGenAI, Type, GenerateContentResponse, Modality } from "@google/genai";
-import { MODELS } from "../constants";
+import { GoogleGenAI } from "@google/genai";
 
 const getAI = () => {
-  const key = process.env.API_KEY;
+  // @ts-ignore
+  const key = typeof process !== 'undefined' ? process.env.API_KEY : '';
   return new GoogleGenAI({ apiKey: key || '' });
 };
 
@@ -65,7 +65,9 @@ export const generateVideo = async (prompt: string) => {
     }
 
     const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-    const res = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+    // @ts-ignore
+    const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+    const res = await fetch(`${downloadLink}&key=${apiKey}`);
     const blob = await res.blob();
     return URL.createObjectURL(blob);
   } catch (error) {

@@ -46,6 +46,8 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
     idPhoto: user.avatar,
     logoPhoto: '', 
     stampPhoto: '',
+    issueDate: new Date().toLocaleDateString(),
+    expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toLocaleDateString()
   });
 
   const photoRef = useRef<HTMLInputElement>(null);
@@ -66,7 +68,6 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
     const theme = cardConfig[cardType];
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#020408] overflow-hidden">
-        {/* Controls */}
         <div className="mb-12 flex flex-wrap justify-center gap-4 z-50 no-print">
            <button onClick={() => setStep('register')} className="px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-white/10 transition-all text-slate-300">
              {lang === 'ar' ? 'رجوع للتعديل' : 'Back to Edit'}
@@ -80,15 +81,12 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
            </button>
         </div>
 
-        {/* ID Card Wrapper with Perspective */}
         <div className="perspective-1000">
           <div className={`relative w-[540px] h-[340px] preserve-3d id-card-inner shadow-[0_50px_100px_rgba(0,0,0,0.6)] rounded-[1.5rem] ${isFlipped ? 'rotate-y-180' : ''}`}>
             
-            {/* FRONT SIDE */}
             <div className="absolute inset-0 w-full h-full backface-hidden bg-white rounded-[1.5rem] overflow-hidden border border-slate-300 flex flex-col shadow-inner">
                <div className={`absolute inset-0 opacity-[0.04] pointer-events-none ${theme.color}`} style={{backgroundImage: `url('https://www.transparenttextures.com/patterns/hexellence.png')`}}></div>
                
-               {/* Header Section */}
                <div className={`h-24 ${theme.color} px-8 flex items-center justify-between text-white relative`}>
                   <div className="flex items-center gap-4">
                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-lg border border-white/20 p-1.5">
@@ -109,7 +107,6 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
                   </div>
                </div>
 
-               {/* Body Section */}
                <div className="flex-1 flex px-8 py-6 gap-8 relative z-10">
                   <div className="w-32 h-40 bg-slate-100 rounded-2xl border-2 border-slate-200 overflow-hidden shadow-sm relative shrink-0">
                      <img src={formData.idPhoto} className="w-full h-full object-cover grayscale-[0.1]" />
@@ -146,7 +143,6 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
                   </div>
                </div>
 
-               {/* Footer Section */}
                <div className="h-14 border-t border-slate-100 px-8 flex items-center justify-between bg-slate-50/60 relative">
                   <div className="flex items-center gap-3">
                      <div className={`w-10 h-10 rounded-full ${theme.color} opacity-10 flex items-center justify-center`}>
@@ -163,7 +159,6 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
                </div>
             </div>
 
-            {/* BACK SIDE */}
             <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-[#f9fafb] rounded-[1.5rem] overflow-hidden border border-slate-300 flex flex-col p-8">
                <div className={`absolute top-10 left-0 right-0 h-14 ${theme.color} opacity-90`}></div>
                
@@ -204,7 +199,6 @@ const IDCardCreator: React.FC<IDCardCreatorProps> = ({ lang, user }) => {
                            ))}
                         </div>
                      </div>
-                     {/* Data Matrix / QR Code */}
                      <div className="w-24 h-24 bg-white p-2 border border-slate-200 rounded-2xl shadow-sm flex flex-col items-center justify-center">
                         <div className="w-full h-full bg-slate-50 grid grid-cols-8 gap-0.5 p-0.5">
                            {Array(64).fill(0).map((_, i) => (
